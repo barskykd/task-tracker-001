@@ -1,0 +1,20 @@
+
+services:
+  task_tracker:
+    build: .
+    profiles:
+      - ""
+    ports:
+      - 8000:8000
+    environment:
+      - TASK_TRACKER_SQLITE_FILE=/data/db.sqlite3
+    volumes:
+      - task_tracker_data:/data
+  pytest:
+    build: .
+    profiles:
+      - pytest
+    entrypoint: ["uv", "run", "pytest"]
+
+volumes:      
+  task_tracker_data: {}

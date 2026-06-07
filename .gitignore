@@ -1,0 +1,9 @@
+__pycache__
+db.sqlite3
+.pytest_cache
+.venv
+.git
+/static_root
+secret_key
+TODO.md
+

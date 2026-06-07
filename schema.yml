@@ -1,0 +1,444 @@
+openapi: 3.0.3
+info:
+  title: Task Tracker App API
+  version: 1.0.0
+  description: Task Tracker App
+paths:
+  /commentaries/:
+    get:
+      operationId: commentaries_list
+      description: API endpoint for Commentary CRUD operations.
+      parameters:
+      - in: query
+        name: task_id
+        schema:
+          type: integer
+        description: Id of task for which to get comments.
+        required: true
+      tags:
+      - commentaries
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommentaryRead'
+          description: ''
+    post:
+      operationId: commentaries_create
+      description: API endpoint for Commentary CRUD operations.
+      tags:
+      - commentaries
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentaryWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CommentaryWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CommentaryWrite'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentaryWrite'
+          description: ''
+  /commentaries/{id}/:
+    get:
+      operationId: commentaries_retrieve
+      description: API endpoint for Commentary CRUD operations.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this commentary.
+        required: true
+      tags:
+      - commentaries
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentaryRead'
+          description: ''
+  /tasks/:
+    get:
+      operationId: tasks_list
+      description: API endpoint for Task CRUD operations.
+      tags:
+      - tasks
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskReadSerializer'
+          description: ''
+    post:
+      operationId: tasks_create
+      description: API endpoint for Task CRUD operations.
+      tags:
+      - tasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskWriteSerializer'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TaskWriteSerializer'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TaskWriteSerializer'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskWriteSerializer'
+          description: ''
+  /tasks/{id}/:
+    get:
+      operationId: tasks_retrieve
+      description: API endpoint for Task CRUD operations.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this task.
+        required: true
+      tags:
+      - tasks
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskReadSerializer'
+          description: ''
+    put:
+      operationId: tasks_update
+      description: API endpoint for Task CRUD operations.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this task.
+        required: true
+      tags:
+      - tasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskWriteSerializer'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TaskWriteSerializer'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TaskWriteSerializer'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskWriteSerializer'
+          description: ''
+    patch:
+      operationId: tasks_partial_update
+      description: API endpoint for Task CRUD operations.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this task.
+        required: true
+      tags:
+      - tasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTaskWriteSerializer'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTaskWriteSerializer'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTaskWriteSerializer'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskWriteSerializer'
+          description: ''
+    delete:
+      operationId: tasks_destroy
+      description: API endpoint for Task CRUD operations.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this task.
+        required: true
+      tags:
+      - tasks
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+  /users/:
+    get:
+      operationId: users_list
+      description: API endpoint that allows users to be viewed
+      tags:
+      - users
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+          description: ''
+  /users/{id}/:
+    get:
+      operationId: users_retrieve
+      description: API endpoint that allows users to be viewed
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - users
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+components:
+  schemas:
+    CommentaryRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        author:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        text:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - author
+      - created_at
+      - id
+      - text
+    CommentaryWrite:
+      type: object
+      properties:
+        task:
+          type: integer
+        text:
+          type: string
+      required:
+      - task
+      - text
+    PatchedTaskWriteSerializer:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+        description:
+          type: string
+        created_by:
+          type: integer
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        assigned_to:
+          type: integer
+          nullable: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          title: Task status
+          minimum: -9223372036854775808
+          maximum: 9223372036854775807
+    StatusEnum:
+      enum:
+      - 0
+      - 1
+      type: integer
+      description: |-
+        * `0` - In Progress
+        * `1` - Finished
+    TaskReadSerializer:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+        description:
+          type: string
+        created_by:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        assigned_to:
+          $ref: '#/components/schemas/User'
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          title: Task status
+          minimum: -9223372036854775808
+          maximum: 9223372036854775807
+        status_display:
+          type: string
+          readOnly: true
+      required:
+      - assigned_to
+      - created_at
+      - created_by
+      - id
+      - status_display
+      - title
+      - updated_at
+    TaskWriteSerializer:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+        description:
+          type: string
+        created_by:
+          type: integer
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        assigned_to:
+          type: integer
+          nullable: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          title: Task status
+          minimum: -9223372036854775808
+          maximum: 9223372036854775807
+      required:
+      - created_at
+      - id
+      - title
+      - updated_at
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+      required:
+      - id
+      - username
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

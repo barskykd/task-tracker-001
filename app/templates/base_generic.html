@@ -1,0 +1,38 @@
+{% load tailwind_tags %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% block title %}
+    <title>Task Tracker</title>
+    {% endblock %}
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {% load static %}
+    {% tailwind_css %}
+    <!-- <script src="https://unpkg.com/alpinejs" defer></script> -->
+    <script src="{% static 'js/alpine.js' %}" defer></script>
+    <script src="{% static 'js/api.js' %}"></script>
+    </script>
+</head>
+
+<body>
+    <div class="m-6 flex">
+        <div class="ml-auto">Logged in as {{ user.get_username }}.
+            <form class="inline" method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <a href="#" onclick="this.closest('form').submit(); return false;" class="underline">Logout.</a>
+            </form>
+            {% if user.is_staff %}
+            <div class="mx-8">
+            <a class="underline" href="/admin">Go to Admin</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% block content %}
+    {% endblock %}
+</body>
+
+</html>

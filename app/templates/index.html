@@ -1,0 +1,328 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+<section class="bg-gray-50 p-3 sm:p-5">
+    <div class="mx-auto max-w-screen-xl px-4 lg:px-12">
+        <div class="bg-white relative shadow-md sm:rounded-lg overflow-hidden">
+            <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
+                <div
+                    class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+                    <button x-data="{task_dialog: $store.task_dialog}" @click.stop="task_dialog.showAdd()" type="button"
+                        class="flex items-center justify-center text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2 focus:outline-none ">
+                        <svg class="h-3.5 w-3.5 mr-2" fill="currentColor" viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path clip-rule="evenodd" fill-rule="evenodd"
+                                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z">
+                            </path>
+                        </svg>
+                        Add task
+                    </button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-500 ">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 ">
+                        <tr>
+                            <th scope="col" class="px-4 py-3">Task Title</th>
+                            <th scope="col" class="px-4 py-3">Created By</th>
+                            <th scope="col" class="px-4 py-3">Assigned To</th>
+                            <th scope="col" class="px-4 py-3">Status</th>
+                            <th scope="col" class="px-4 py-3">
+                                <span class="sr-only">Actions</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="task_list" x-data="{ tasks: $store.tasks, task_dialog: $store.task_dialog }">
+                        <template x-for="task in tasks.items">
+                            <tr class="border-b hover:bg-gray-100" @click.stop="task_dialog.showEdit(task);">
+                                <th id="task_name" scope="row"
+                                    class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap " x-text="task.title">
+                                </th>
+                                <td class="px-4 py-3" x-text="task.created_by?.username"></td>
+                                <td class="px-4 py-3" x-text="task.assigned_to?.username"></td>
+                                <td class="px-4 py-3" x-text="task.status_display"></td>
+                                <td>
+                                    <button @click.stop="confirmTaskDeletion(task);"
+                                        class="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none "
+                                        type="button">
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        </template>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Task Edit Dialog -->
+<dialog x-data="{task_dialog: $store.task_dialog}" @click.away="task_dialog.hide()" x-ref="task_dialog"
+    x-effect="if (task_dialog.visible) {console.log($refs.task_dialog); $refs.task_dialog.showModal()} else $refs.task_dialog.close()"
+    @click="$event.target === $refs.task_dialog && task_dialog.hide()"
+    class="m-auto w-full max-w-md p-6 rounded-lg shadow-xl backdrop:bg-black/50">
+    <div class="mx-auto block max-w-md rounded-lg bg-white p-6 shadow-4 dark:bg-surface-dark">
+        <form @submit.prevent="task_dialog.submit()" class="max-w-sm mx-auto">
+            <div class="mb-5">
+                <label for="task_title" class="block mb-2.5 text-sm font-medium text-heading">Title</label>
+                <input x-model="task_dialog.title" type="text" id="task_title"
+                    class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-primary focus:border-primary block w-full px-3 py-2.5 shadow-xs placeholder:text-body"
+                    placeholder="Do wonders!" required />
+            </div>
+            <label for="task_status" class="block mb-2.5 text-sm font-medium text-heading">Status</label>
+            <select x-model="task_dialog.status" id="task_status"
+                class="block w-full px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-primary focus:border-primary shadow-xs placeholder:text-body">
+                <option value="0" selected>In Progress</option>
+                <option value="1">Finished</option>
+            </select>
+
+            <label for="countries" class="block mt-6 mb-2.5 text-sm font-medium text-heading">Select an option</label>
+            <select x-model="task_dialog.assignedTo"
+                class="block w-full px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body">
+                <option value="null">-- unassigned --</option>
+                <template x-for="user in $store.users.items">
+                    <option x-bind:value="user.id" x-text="user.username"></option>
+                </template>
+            </select>
+
+            <label for="description" class="block mt-6 mb-2.5 text-sm font-medium text-heading">Description</label>
+            <textarea x-model="task_dialog.description" id="message" rows="4"
+                class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-primary focus:border-primary block w-full p-3.5 shadow-xs placeholder:text-body"
+                placeholder="Important customer asked as about..."></textarea>
+            <!-- Submit button -->
+            <template x-if="!task_dialog.taskId">
+                <button type="submit"
+                    class="mt-6 inline-block w-full rounded bg-primary px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-primary-3 transition duration-150 ease-in-out hover:bg-primary-accent-300 hover:shadow-primary-2 focus:bg-primary-accent-300 focus:shadow-primary-2 focus:outline-none focus:ring-0 active:bg-primary-600 active:shadow-primary-2 dark:shadow-black/30 dark:hover:shadow-dark-strong dark:focus:shadow-dark-strong dark:active:shadow-dark-strong">Add</button>
+            </template>
+            <template x-if="!!task_dialog.taskId">
+                <button type="submit"
+                    class="mt-6 inline-block w-full rounded bg-primary px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-primary-3 transition duration-150 ease-in-out hover:bg-primary-accent-300 hover:shadow-primary-2 focus:bg-primary-accent-300 focus:shadow-primary-2 focus:outline-none focus:ring-0 active:bg-primary-600 active:shadow-primary-2 dark:shadow-black/30 dark:hover:shadow-dark-strong dark:focus:shadow-dark-strong dark:active:shadow-dark-strong">Save</button>
+            </template>
+        </form>
+        <template x-if="!!task_dialog.taskId">
+            <form @submit.prevent="task_dialog.postComment()" class="mt-6 max-w-sm mx-auto">
+                <label for="description" class="block mb-2.5 text-sm font-medium text-heading">Leave a comment</label>
+                <textarea x-model="task_dialog.commentaryText" required rows="4"
+                    class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-primary focus:border-primary block w-full p-3.5 shadow-xs placeholder:text-body"
+                    placeholder="I don't think this is correct..."></textarea>
+                <button type="submit"
+                    class="mt-6 inline-block w-full rounded bg-primary px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-primary-3 transition duration-150 ease-in-out hover:bg-primary-accent-300 hover:shadow-primary-2 focus:bg-primary-accent-300 focus:shadow-primary-2 focus:outline-none focus:ring-0 active:bg-primary-600 active:shadow-primary-2 dark:shadow-black/30 dark:hover:shadow-dark-strong dark:focus:shadow-dark-strong dark:active:shadow-dark-strong">Post</button>
+            </form>
+        </template>
+        <template x-for="comment in task_dialog.comments">
+            <div class="m-6">
+                <div class="text-sm font-medium text-heading"><span
+                        x-text="comment.author?.username || 'unknown' "></span> commented at <span
+                        x-text="comment.created_at"></span></div>
+                <div class="mt-6" x-text="comment.text"></div>
+            </div>
+        </template>
+    </div>
+
+</dialog>
+
+<!-- Confirm Task Deletion Dialog -->
+
+<dialog x-data="{data: $store.confirm_task_deletion}" @click.away="data.reject()" x-ref="dialog"
+    x-effect="if (data.visible) {$refs.dialog.showModal()} else $refs.dialog.close()"
+    @click="$event.target === $refs.dialog && data.reject()"
+    class="m-auto w-full max-w-md p-6 rounded-lg shadow-xl backdrop:bg-black/50">
+    <div class="mx-auto block max-w-md rounded-lg bg-white p-6 shadow-4 dark:bg-surface-dark">
+        <form @submit.prevent="data.delete()" class="max-w-sm mx-auto">
+            <div>Delete task?</div>
+            <button type="submit"
+                class="mt-6 inline-block w-full rounded bg-primary px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-white shadow-primary-3 transition duration-150 ease-in-out hover:bg-primary-accent-300 hover:shadow-primary-2 focus:bg-primary-accent-300 focus:shadow-primary-2 focus:outline-none focus:ring-0 active:bg-primary-600 active:shadow-primary-2 dark:shadow-black/30 dark:hover:shadow-dark-strong dark:focus:shadow-dark-strong dark:active:shadow-dark-strong">Delete</button>
+        </form>
+    </div>
+</dialog>
+
+<script>
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Django csrf cookie
+    const csrfHeaders = { "X-CSRFToken": getCookie("csrftoken") }
+
+
+    async function loadUsers() {
+        const users = await Api.usersList();
+        if (users.status === 200) {
+            Alpine.store('users').items = users.data;
+        }
+    }
+
+    async function loadTasks() {
+        const res = await Api.tasksList();
+        console.log(res);
+        if (res.status === 200) {
+            Alpine.store('tasks').setTasks(res.data)
+        } else {
+            Alpine.store('tasks').setFailed()
+        }
+    }
+
+    async function createTask({ title, description, status }) {
+        await Api.tasksCreate({ title, description, status }, {
+            headers: csrfHeaders
+        })
+    }
+
+    function parseUserId(userId) {
+        if (!userId) {
+            return null;
+        }
+        if (userId == "null") {
+            return null;
+        }
+        return parseInt(userId);
+    }
+
+    function confirmTaskDeletion(task) {
+        Alpine.store("confirm_task_deletion").confirm(task);
+    }
+
+    document.addEventListener('alpine:init', async function () {
+        Alpine.store('users', {
+            items: []
+        });
+        Alpine.store('tasks', {
+            loaded: false,
+            failed: false,
+            items: [],
+            setTasks(tasks) {
+                console.log(tasks)
+                this.items = tasks;
+                this.failed = false;
+                this.loaded = true;
+            },
+            setFailed() {
+                this.items = [];
+                this.failed = true;
+                this.loaded = false;
+            }
+        })
+        Alpine.store('task_dialog', {
+            visible: false,
+            title: "",
+            description: "",
+            status: 0,
+            taskId: null,
+            assignedTo: null,
+            comments: [],
+            commentaryText: "",
+            showAdd() {
+                this.visible = true;
+                this.title = "";
+                this.description = "";
+                this.status = 0;
+                this.isEdit = false;
+                this.taskId = null;
+                this.assignedTo = null;
+                this.commentaryText = "";
+            },
+            showEdit(task) {
+                this.visible = true;
+                this.title = task.title;
+                this.description = task.description;
+                this.status = task.status;
+                this.isEdit = true;
+                this.taskId = task.id;
+                this.assignedTo = task.assigned_to?.id;
+                this.commentaryText = "";
+                this.loadComments();
+            },
+            show() {
+                this.visible = true;
+                console.log(this);
+            },
+            hide() {
+                this.visible = false;
+                console.log(this);
+            },
+            setComments(comments) {
+                console.log(comments)
+                this.comments = comments;
+            },
+            async submit() {
+                if (!this.taskId) {
+                    await Api.tasksCreate({ title: this.title, description: this.description, status: this.status, assigned_to: parseUserId(this.assignedTo) }, {
+                        headers: csrfHeaders
+                    })
+                    this.visible = false;
+                    loadTasks();
+                } else {
+                    await Api.tasksUpdate(this.taskId, {
+                        title: this.title,
+                        description: this.description,
+                        status: this.status,
+                        assigned_to: parseUserId(this.assignedTo)
+                    }, {
+                        headers: csrfHeaders
+                    })
+                    this.visible = false;
+                    loadTasks();
+                }
+            },
+            async loadComments() {
+                const comments = await Api.commentariesList({ task_id: this.taskId })
+                this.setComments(comments.data);
+            },
+            async postComment() {
+                await Api.commentariesCreate({
+                    task: this.taskId,
+                    text: this.commentaryText
+                }, {
+                    headers: csrfHeaders
+                });
+                this.commentaryText = "";
+                this.loadComments();
+
+            }
+
+        })
+        Alpine.store("confirm_task_deletion", {
+            task: null,
+            visible: false,
+            confirm(task) {
+                console.log("confirm", task)
+                this.task = task
+                this.visible = true
+            },
+            reject() {
+                this.task = null
+                this.visible = false
+            },
+            async delete() {
+                console.log(this.task)
+                await Api.tasksDestroy(this.task.id, {
+                    headers: csrfHeaders
+                });
+                this.visible = false;
+                loadTasks();
+            }
+        })
+
+        loadUsers();
+        loadTasks();
+    })
+
+</script>
+{% endblock %}

@@ -1,0 +1,5 @@
+#!/usr/bin/bash
+
+uv run manage.py spectacular --file schema.yml
+orval -i schema.yml -o app/static/js/ --client fetch
+npx esbuild app/static/js/taskTackerAppAPI.ts --bundle --outfile=app/static/js/api.js --format=iife --global-name=Api
